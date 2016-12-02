@@ -3,6 +3,37 @@ import json
 from bs4 import BeautifulSoup
 
 
+def plot_graph(lst1, lst2):
+    '''
+    TP = correct
+    FP = incorrect
+    TN = new_correct
+    FN = new_incorrect
+    '''
+    lst_x = []
+    lst_y = []
+    for item_first, item_second in zip(lst1, lst2):
+        TP, FP, TN, FN = item_first[0], item_first[
+            1], item_second[0], item_second[1]
+        x = FP / (FP + TN)
+        y = TP / (TP + FN)
+        lst_x.append(x)
+        lst_y.append(y)
+    print(lst_x)
+    print(lst_y)
+    # import matplotlib.pyplot as plt
+    # import numpy as np
+    # x = FP / (FP + TN)
+    # y = TP / (TP + FN)
+
+    # # This is the ROC curve
+    # plt.plot(x, y)
+    # plt.show()
+
+    # # This is the AUC
+    # auc = np.trapz(y, x)
+
+
 def sort_dic_json(data):
     dic_json = {}
     for datum in data:
@@ -26,18 +57,25 @@ def execute_code(xml_file, json_file):
     soup = BeautifulSoup(xml_data, 'html.parser')
     lst_tag = get_lst_tag(soup)
 
-    lst = []
+    lst1 = []
+    lst2 = []
     for index, data in enumerate(json_data):
         count_find = 0
         count_not_find = 0
+        c1 = 0
+        c2 = 0
         for item in data:
             if (search_in_xml_specific_tag(soup, item['label'], item['original'])):
                 count_find = count_find + 1
             else:
                 count_not_find = count_not_find + 1
-
-        lst.append((count_find, count_not_find))
-    print(lst)
+            if (search_in_xml_specific_tag(soup, item['newLabel'], item['original'])):
+                c1 = c1 + 1
+            else:
+                c2 = c2 + 1
+        lst1.append((count_find, count_not_find))
+        lst2.append((c1, c2))
+    plot_graph(lst1, lst2)
 
     # dic_json = sort_dic_json(json_data)
 
@@ -73,23 +111,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-
-
-def plot_graph(TP, FP, TN, FN):
-    '''
-    TP = correct
-    FP = incorrect
-    TN = new_correct
-    FN = new_incorrect
-    '''
-    import matplotlib.pyplot as plt
-    import numpy as np
-    x = FP / (FP + TN)
-    y = TP / (TP + FN)
-
-    # This is the ROC curve
-    plt.plot(x, y)
-    plt.show()
-
-    # This is the AUC
-    auc = np.trapz(y, x)
