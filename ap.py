@@ -2,36 +2,46 @@ import json
 from bs4 import BeautifulSoup
 
 
-def sortJson(data):
-    jsonNewArray = {}
+def sort_dic_json(data):
+    dic_json = {}
     for datum in data:
         for js in datum:
-            if not jsonNewArray.get(js['label'], None):
-                jsonNewArray[js['label']] = []
-            jsonNewArray[js['label']].append(js['original'].strip())
-    return jsonNewArray
+            if not dic_json.get(js['label'], None):
+                dic_json[js['label']] = []
+            dic_json[js['label']].append(js['original'].strip())
+    return dic_json
 
 
 with open('file.xml', 'r') as f:
-    xmlData = f.read()
+    xml_data = f.read()
 
 with open('file.json', 'r') as f:
-    jsonData = json.loads(f.read())
+    json_data = json.loads(f.read())
 
-sortedJsonData = sortJson(jsonData)
+dic_json = sort_dic_json(json_data)
 
 
-soup = BeautifulSoup(xmlData, 'html.parser')
-tagsArray = []
-tagsArray = list(set([tag.name for tag in soup.find_all()]))
+soup = BeautifulSoup(xml_data, 'html.parser')
+lst_tag = []
+lst_tag = list(set([tag.name for tag in soup.find_all()]))
 
 correct = incorrect = 0
-for tag in tagsArray:
-    for tagText in soup.find_all(tag):
-        if sortedJsonData.get(tag, None) and tagText.get_text().strip() in sortedJsonData[tag]:
-            # print('Correct', tagText.get_text())
+for tag in lst_tag:
+    for text in soup.find_all(tag):
+        if dic_json.get(tag, None) and text.get_text().strip() in dic_json[tag]:
             correct = correct + 1
         else:
-            # print('Not Correct', tagText.get_text())
             incorrect = incorrect + 1
 print('Correct count is ', correct, ' and incorrect count is ', incorrect)
+
+new_correct = 0
+new_incorrect = 0
+for tag in dic_json:
+    for item in dic_json[tag]:
+        if soup.find_all(tag) and item.strip() in [i.get_text().strip() for i in soup.find_all(tag)]:
+            new_correct = new_correct + 1
+        else:
+            new_incorrect = new_incorrect + 1
+
+print('New Correct count is ', new_correct,
+      ' and New incorrect count is ', new_incorrect)
