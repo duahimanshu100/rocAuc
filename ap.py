@@ -23,33 +23,44 @@ def execute_code(xml_file, json_file):
 
     with open(json_file, 'r') as f:
         json_data = json.loads(f.read())
-
-    dic_json = sort_dic_json(json_data)
-
     soup = BeautifulSoup(xml_data, 'html.parser')
     lst_tag = get_lst_tag(soup)
 
-    correct, incorrect = 0, 0
-    for tag in lst_tag:
-        for text in soup.find_all(tag):
-            if dic_json.get(tag, None) and text.get_text().strip() in dic_json[tag]:
-                correct = correct + 1
+    lst = []
+    for index, data in enumerate(json_data):
+        count_find = 0
+        count_not_find = 0
+        for item in data:
+            if (search_in_xml_specific_tag(soup, item['label'], item['original'])):
+                count_find = count_find + 1
             else:
-                incorrect = incorrect + 1
-    print('Correct count is ', correct, ' and incorrect count is ', incorrect)
+                count_not_find = count_not_find + 1
 
-    new_correct = 0
-    new_incorrect = 0
-    for tag in dic_json:
-        for item in dic_json[tag]:
-            if soup.find_all(tag) and item.strip() in [i.get_text().strip() for i in soup.find_all(tag)]:
-                new_correct = new_correct + 1
-            else:
-                new_incorrect = new_incorrect + 1
+        lst.append((count_find, count_not_find))
+    print(lst)
 
-    print('New Correct count is ', new_correct,
-          ' and New incorrect count is ', new_incorrect)
-    plot_graph(correct, incorrect, new_correct, new_incorrect)
+    # dic_json = sort_dic_json(json_data)
+
+    # correct, incorrect = 0, 0
+    # for tag in lst_tag:
+    #     for text in soup.find_all(tag):
+    #         if dic_json.get(tag, None) and text.get_text().strip() in dic_json[tag]:
+    #             correct = correct + 1
+    #         else:
+    #             incorrect = incorrect + 1
+    # print('Correct count is ', correct, ' and incorrect count is ', incorrect)
+
+
+def search_in_xml_specific_tag(soup, tag, item):
+    if soup.find_all(tag) and item.strip() in [i.get_text().strip() for i in soup.find_all(tag)]:
+        return True
+    else:
+        return False
+
+
+# def search_in_xml_not_specific_tag(soup, tag, item, lst_tag):
+#     lst_tag = lst_tag - tag
+#     for i in
 
 
 def main():
@@ -63,7 +74,8 @@ def main():
 if __name__ == '__main__':
     main()
 
-def plot_graph(TP,FP,TN.FN):
+
+def plot_graph(TP, FP, TN, FN):
     '''
     TP = correct
     FP = incorrect
