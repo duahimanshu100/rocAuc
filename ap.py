@@ -49,6 +49,7 @@ def execute_code(xml_file, json_file):
 
     print('New Correct count is ', new_correct,
           ' and New incorrect count is ', new_incorrect)
+    plot_graph(correct, incorrect, new_correct, new_incorrect)
 
 
 def main():
@@ -61,3 +62,22 @@ def main():
 
 if __name__ == '__main__':
     main()
+
+def plot_graph(TP,FP,TN.FN):
+    '''
+    TP = correct
+    FP = incorrect
+    TN = new_correct
+    FN = new_incorrect
+    '''
+    import matplotlib.pyplot as plt
+    import numpy as np
+    x = FP / (FP + TN)
+    y = TP / (TP + FN)
+
+    # This is the ROC curve
+    plt.plot(x, y)
+    plt.show()
+
+    # This is the AUC
+    auc = np.trapz(y, x)
